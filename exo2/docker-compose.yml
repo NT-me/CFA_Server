@@ -1,0 +1,53 @@
+services:
+  cont_alone1:
+    build:
+      dockerfile: docker_alone1
+      context: .
+    container_name: cont_alone1
+    extra_hosts:
+    - host.docker.internal:host-gateway
+    image: image_alone1
+    ports:
+    - 8080:80
+    stdin_open: true
+    tty: true
+
+  cont_alone2:
+    build:
+      dockerfile: docker_alone2
+      context: .
+    container_name: cont_alone2
+    extra_hosts:
+    - host.docker.internal:host-gateway
+    image: image_alone2
+    ports:
+    - 8081:80
+    stdin_open: true
+    tty: true
+
+  cont_gateway0:
+    build:
+      dockerfile: docker_gateway0
+      context: .
+    container_name: cont_gateway0
+    extra_hosts:
+    - host.docker.internal:host-gateway
+    image: image_gateway0
+    ports:
+    - 25565:80
+    stdin_open: true
+    tty: true
+
+  cont_broker0:
+    build:
+      dockerfile: docker_broker0
+      context: .
+    container_name: cont_broker0
+    extra_hosts:
+    - host.docker.internal:host-gateway
+    image: image_broker0
+    ports:
+    - 25566:80
+    stdin_open: true
+    tty: true
+version: '3'

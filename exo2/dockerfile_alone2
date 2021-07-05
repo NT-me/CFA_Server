@@ -1,0 +1,11 @@
+FROM tiangolo/uvicorn-gunicorn-fastapi:python3.7
+
+EXPOSE 80
+
+COPY ./alone2.py /app
+
+COPY ./server_reg.py /app
+
+RUN mv /app/alone2.py /app/main.py
+
+RUN pip3 install requests

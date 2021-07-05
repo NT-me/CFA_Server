@@ -1,31 +1,36 @@
 from fastapi import FastAPI, BackgroundTasks
 import requests as r
 from time import sleep
+from server_reg import ServerReg
 
 # http://0.0.0.0:8081/pong
 
 app = FastAPI()
-myAdress = "0.0.0.0:8081"
+otherAdress = []
+brokerAddr = ""
 
-otherAdress = ""
+me = ServerReg(name="alone2", adress="host.docker.internal:8081")
 
 
 @app.on_event("startup")
 async def startup_event():
-    r.get("http://0.0.0.0:25565/otherServ/{}".format(myAdress))
+    global brokerAddr
+    # r.get("http://host.docker.internal:25565/otherServ/{}".format(me.adress))
+    print(me.dict())
+    resp = r.post("http://host.docker.internal:25565/register/", json=me.dict())
+    print(resp.text)
+    while brokerAddr == "":
+        sleep(0.5)
+        addrList = r.get("http://host.docker.internal:25565/otherServ/{}".format(me.name))
+        addrList = addrList.json()["list"]
+        for server in addrList:
+            if server["name"] == "broker0":
+                brokerAddr = server["adress"]
 
 
 def send_ping():
-    global otherAdress
-    global myAdress
-    if otherAdress != "" and otherAdress != "null" and otherAdress is not None and otherAdress != "[]":
-        print("http://"+otherAdress.replace("\"","").replace("[", "").replace("]", "")+"/pingpong")
-        resp = r.get("http://"+otherAdress.replace("\"","").replace("[", "").replace("]", "")+"/pingpong")
-        print(resp.text)
-    else:
-        reqAdrr = r.get("http://0.0.0.0:25565/otherServ/{}".format(myAdress))
-        otherAdress = reqAdrr.text
-        print(reqAdrr.text)
+    resp = r.get("http://" + brokerAddr + "/sendMsg/to/alone1")
+    print(resp.text)
 
 @app.get("/pingpong")
 async def read_root(background_tasks: BackgroundTasks):
